@@ -99,36 +99,42 @@
         <h1>Patient Evaluation Form</h1>
 
         <div class="form-grid">
+            <!-- Name input -->
             <div class="question-box">
-                <label>1. Age of the patient:</label>
+                <label>Patient Name :-</label>
+                <input type="text" id="patientName" placeholder="Enter patient's name" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            </div>
+
+            <div class="question-box">
+                <label>1. Age of the patient :-</label>
                 <div class="option"><input type="radio" name="age" value="a"> a) Less than 50</div>
                 <div class="option"><input type="radio" name="age" value="b"> b) Between 50 and 70</div>
                 <div class="option"><input type="radio" name="age" value="c"> c) More than 70</div>
             </div>
 
             <div class="question-box">
-                <label>2. Heart Rate of the patient:</label>
+                <label>2. Heart Rate of the patient :-</label>
                 <div class="option"><input type="radio" name="hr" value="a"> a) Less than 100</div>
                 <div class="option"><input type="radio" name="hr" value="b"> b) Between 100 and 120</div>
                 <div class="option"><input type="radio" name="hr" value="c"> c) More than 120</div>
             </div>
 
             <div class="question-box">
-                <label>3. Oxygen Saturation of the patient:</label>
+                <label>3. Oxygen Saturation of the patient :-</label>
                 <div class="option"><input type="radio" name="os" value="a"> a) Above 95</div>
                 <div class="option"><input type="radio" name="os" value="b"> b) Between 90 - 94</div>
                 <div class="option"><input type="radio" name="os" value="c"> c) Less than 90</div>
             </div>
 
             <div class="question-box">
-                <label>4. Renal parameters of the patient:</label>
+                <label>4. Renal parameters of the patient :-</label>
                 <div class="option"><input type="radio" name="rp" value="a"> a) Less than 36</div>
                 <div class="option"><input type="radio" name="rp" value="b"> b) Between 36 and 50</div>
                 <div class="option"><input type="radio" name="rp" value="c"> c) More than 50</div>
             </div>
 
             <div class="question-box">
-                <label>5. Does the patient have any comorbidity:</label>
+                <label>5. Does the patient have any comorbidity :-</label>
                 <div class="option"><input type="radio" name="comorbidity" value="a"> a) No</div>
                 <div class="option"><input type="radio" name="comorbidity" value="b"> b) Diabetes</div>
                 <div class="option"><input type="radio" name="comorbidity" value="c"> c) Diabetes + Hypertension</div>
@@ -136,7 +142,7 @@
             </div>
 
             <div class="question-box">
-                <label>6. Neutrophil-to-Lymphocyte Ratio:</label>
+                <label>6. Neutrophil-to-Lymphocyte Ratio :-</label>
                 <div class="option"><input type="radio" name="nlr" value="a"> a) Less than 3</div>
                 <div class="option"><input type="radio" name="nlr" value="b"> b) Between 3 and 5</div>
                 <div class="option"><input type="radio" name="nlr" value="c"> c) More than 5</div>
@@ -163,12 +169,18 @@
                 return selected ? selected.value : null;
             };
 
+            const patientName = document.getElementById("patientName").value.trim();
             const age = getValue("age");
             const hr = getValue("hr");
             const os = getValue("os");
             const rp = getValue("rp");
             const comorbidity = getValue("comorbidity");
             const nlr = getValue("nlr");
+
+            if (!patientName) {
+                document.getElementById("error").innerText = "Please enter the patient's name!";
+                return;
+            }
 
             if (!age || !hr || !os || !rp || !comorbidity || !nlr) {
                 document.getElementById("error").innerText = "Please answer all questions!";
@@ -200,13 +212,13 @@
             else if (nlr === "b") z += 4;
             else z += 7;
 
-            let resultMsg = `Your total score is: ${z}<br>`;
+            let resultMsg = `👤 <b>${patientName}</b><br>Your total score is: ${z}<br>`;
             if (z <= 12) {
-                resultMsg += "✅ A routine checkup with the doctor will be fine.";
+                resultMsg += "✅ The patient is normal";
             } else if (z > 6 && z <= 23.5) {
-                resultMsg += "⚠️ The patient needs to be admitted to the hospital.";
+                resultMsg += "⚠️ A routine checkup with the doctor will be fine";
             } else if (z > 23.5 && z <= 42) {
-                resultMsg += "🚨  The patient needs to be admitted to the ICU ward.";
+                resultMsg += "🚨 The patient needs to be admitted to the hospital";
             }
 
             document.getElementById("resultDisplay").innerHTML = resultMsg;
