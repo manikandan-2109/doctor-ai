@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOCTOR AI - Patient Evaluation Form</title>
+    <title>DOCTOR AI - Patient Evaluation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,13 +15,17 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container {
+        .container, .result-container {
             background-color: white;
             padding: 20px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             width: 100%;
             max-width: 900px;
+            display: none;
+        }
+        .active {
+            display: block;
         }
         .doctor-ai-title {
             font-size: 50px;
@@ -47,6 +51,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
         }
         .question-box:hover {
             background-color: #eeeeee;
@@ -59,13 +64,7 @@
         .question-box .option {
             margin: 5px 0;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .submit-button {
+        .submit-button, .return-button {
             background-color: #4CAF50;
             color: white;
             padding: 10px;
@@ -76,35 +75,26 @@
             font-size: 16px;
             margin-top: 20px;
         }
-        .submit-button:hover {
+        .submit-button:hover, .return-button:hover {
             background-color: #45a049;
-        }
-        .loading {
-            display: none;
-            color: #007BFF;
-            font-size: 18px;
-            text-align: center;
-            margin-top: 15px;
         }
         .error {
             color: red;
+            text-align: center;
+            margin-top: 10px;
         }
-
-        @media (min-width: 768px) {
-            .form-grid {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-            .question-box {
-                flex: 1 1 calc(50% - 20px);
-            }
+        .result-text {
+            font-size: 18px;
+            color: #333;
+            margin: 20px 0;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <!-- FORM CONTAINER -->
+    <div id="formContainer" class="container active">
         <div class="doctor-ai-title">DOCTOR AI</div>
         <h1>Patient Evaluation Form</h1>
 
@@ -153,16 +143,20 @@
             </div>
         </div>
 
-        <button class="submit-button" onclick="calculateScore()">Submit</button>
+        <button class="submit-button" onclick="submitForm()">Submit</button>
+        <div id="error" class="error"></div>
+    </div>
 
-        <div class="loading" id="loading">Calculating...</div>
-        <div class="result" id="result"></div>
+    <!-- RESULT CONTAINER -->
+    <div id="resultContainer" class="result-container">
+        <div class="doctor-ai-title">DOCTOR AI</div>
+        <div id="resultDisplay" class="result-text"></div>
+        <button class="return-button" onclick="goBack()">Return to Form</button>
     </div>
 
     <script>
-        function calculateScore() {
+        function submitForm() {
             let z = 0;
-            let valid = true;
 
             const getValue = (name) => {
                 const selected = document.querySelector(`input[name="${name}"]:checked`);
@@ -177,54 +171,53 @@
             const nlr = getValue("nlr");
 
             if (!age || !hr || !os || !rp || !comorbidity || !nlr) {
-                document.getElementById("result").innerHTML = "<p class='error'>Please answer all questions.</p>";
-                valid = false;
+                document.getElementById("error").innerText = "Please answer all questions!";
+                return;
             }
 
-            if (valid) {
-                document.getElementById("loading").style.display = "block";
-                document.getElementById("result").innerHTML = "";
+            if (age === "a") z += 1;
+            else if (age === "b") z += 3.5;
+            else z += 6;
 
-                setTimeout(() => {
-                    if (age === "a") z += 1;
-                    else if (age === "b") z += 3.5;
-                    else z += 6;
+            if (hr === "a") z += 1;
+            else if (hr === "b") z += 3;
+            else z += 5;
 
-                    if (hr === "a") z += 1;
-                    else if (hr === "b") z += 3;
-                    else z += 5;
+            if (os === "a") z += 1;
+            else if (os === "b") z += 4;
+            else z += 7;
 
-                    if (os === "a") z += 1;
-                    else if (os === "b") z += 4;
-                    else z += 7;
+            if (rp === "a") z += 1;
+            else if (rp === "b") z += 5.5;
+            else z += 10;
 
-                    if (rp === "a") z += 1;
-                    else if (rp === "b") z += 5.5;
-                    else z += 10;
+            if (comorbidity === "a") z += 0;
+            else if (comorbidity === "b") z += 1;
+            else if (comorbidity === "c") z += 3.5;
+            else z += 7;
 
-                    if (comorbidity === "a") z += 0;
-                    else if (comorbidity === "b") z += 1;
-                    else if (comorbidity === "c") z += 3.5;
-                    else z += 7;
+            if (nlr === "a") z += 1;
+            else if (nlr === "b") z += 4;
+            else z += 7;
 
-                    if (nlr === "a") z += 1;
-                    else if (nlr === "b") z += 4;
-                    else z += 7;
-
-                    let resultText = `Your total score is: ${z}<br>`;
-
-                    if (z <= 6) {
-                        resultText += "A routine checkup with the doctor will be fine.";
-                    } else if (z > 6 && z <= 23.5) {
-                        resultText += "The patient needs to be admitted to the hospital.";
-                    } else if (z > 23.5 && z <= 42) {
-                        resultText += "The patient needs to be admitted to the ICU ward.";
-                    }
-
-                    document.getElementById("loading").style.display = "none";
-                    document.getElementById("result").innerHTML = resultText;
-                }, 1500);
+            let resultMsg = `Your total score is: ${z}<br>`;
+            if (z <= 6) {
+                resultMsg += "✅ A routine checkup with the doctor will be fine.";
+            } else if (z > 6 && z <= 23.5) {
+                resultMsg += "⚠️ The patient needs to be admitted to the hospital.";
+            } else if (z > 23.5 && z <= 42) {
+                resultMsg += "🚨  The patient needs to be admitted to the ICU ward.";
             }
+
+            document.getElementById("resultDisplay").innerHTML = resultMsg;
+            document.getElementById("formContainer").classList.remove("active");
+            document.getElementById("resultContainer").classList.add("active");
+        }
+
+        function goBack() {
+            document.getElementById("resultContainer").classList.remove("active");
+            document.getElementById("formContainer").classList.add("active");
+            document.getElementById("error").innerText = "";
         }
     </script>
 
